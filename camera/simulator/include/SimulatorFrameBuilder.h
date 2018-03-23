@@ -114,6 +114,8 @@ class LIBSIMULATOR_API FrameBuilder {
 	
 	void getGrowFactor( double &grow_factor ) const;
 	void setGrowFactor( const double &grow_factor );
+  
+  void setXYOffsets(double y_offset, double x_offset);
 
 	void getDiffractionPos( double &x, double &y ) const;
 	void setDiffractionPos( const double &x, const double &y );
@@ -143,6 +145,9 @@ class LIBSIMULATOR_API FrameBuilder {
 	double m_diffract_y;
 	double m_diffract_sx;
 	double m_diffract_sy;
+  
+  double m_x_offset;
+  double m_y_offset;
 
 	unsigned long m_frame_nr;
 

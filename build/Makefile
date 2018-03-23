@@ -20,9 +20,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 ############################################################################
 
-include ../config.inc
-
-
 ############################
 # HELPER MACROS
 ############################
@@ -30,6 +27,10 @@ include ../config.inc
 this-dir	:= $(shell pwd)
 lima-dir	:= $(this-dir)/..
 third-party-dir	:= $(lima-dir)/third-party
+
+LIMA_DIR = $(lima-dir)
+include $(LIMA_DIR)/config.inc
+include $(LIMA_DIR)/control/control.inc
 
 full-version	= $(shell cat $(1))
 minor-version	= $(shell echo $(call full-version,$(1)) | cut -f1-2 -d.)
@@ -44,20 +45,6 @@ lib-full        = $(call lib-base,$(1)).$(call full-version,$(2))
 lib-minor       = $(call lib-base,$(1)).$(call minor-version,$(2))
 lib-link	= $(call lib-base,$(1)).$(call link-version,$(2))
 lib-flags	= -fPIC -Wl,-soname,$(call lib-link,$(1),$(2))
-lib-depshcmd	= for p in $(1); do \
-                      d=$$(echo $${p} | cut -d, -f1); \
-                      l=$$(echo $${p} | cut -d, -f2); \
-                      template=$$(echo $${p} | cut -d, -f3); \
-		      if [ ! -z $${template} ] ; then \
-			 eval echo $${template}; \
-		      else \
-                         echo $(2); \
-		      fi \
-                  done
-lib-depflagsstr = "-L $${d} -Wl,-rpath=$${d}"
-lib-depflags	= $(shell $(call lib-depshcmd,$(1),$(lib-depflagsstr)))
-lib-deplibs	= $(shell $(call lib-depshcmd,$(1),"-l$${l}"))
-lib-deps	= $(shell $(call lib-depshcmd,$(1),"$${d}/lib$${l}.so"))
 
 # 1=name, 2=ver-file 3=deps 4=flags 5=libs, 6=target, 7=objs
 compile-lib	= \
@@ -75,40 +62,12 @@ create-links	= \
 # LIMA - CORE
 ############################
 
-CORE_LDFLAGS	:= 
-CORE_LDLIBS	:= -lrt
-CORE_DEPLIBS	:= $(third-party-dir)/Processlib/build,processlib
-
-ifneq ($(COMPILE_CBF_SAVING),0)
-CORE_LDLIBS += -lcrypto
-CORE_DEPLIBS += $(third-party-dir)/CBFLib/lib,cbf,'$${d}/lib$${l}.a'
-endif
-
-ifneq ($(COMPILE_FITS_SAVING),0)
-CORE_DEPLIBS += $(third-party-dir)/cfitsio/lib,cfitsio \
-		$(third-party-dir)/CCfits/.libs,CCfits
-endif
-
-ifneq ($(COMPILE_EDFGZ_SAVING),0)
-CORE_LDLIBS += -lz
-endif
-
-ifneq ($(COMPILE_EDFLZ4_SAVING),0)
-CORE_LDLIBS += -llz4
-endif
-
-ifneq ($(COMPILE_TIFF_SAVING),0)
-CORE_LDLIBS += -ltiff
-endif
+CORE_LDFLAGS	:= $(CT_LDFLAGS)
+CORE_LDLIBS	:= $(CT_LDLIBS)
+CORE_DEPLIBS	:= $(CT_DEPLIBS)
 
 ifneq ($(COMPILE_HDF5_SAVING),0)
 PROCESSOR_TYPE := $(shell uname -m)
-CORE_DEPLIBS += $(third-party-dir)/hdf5/src/.libs,hdf5 \
-		$(third-party-dir)/hdf5/c++/src/.libs,hdf5_cpp
-endif
-
-ifneq ($(COMPILE_CONFIG),0)
-CORE_DEPLIBS += $(third-party-dir)/libconfig/lib/.libs,config++
 endif
 
 ifneq ($(COMPILE_CORE),0)
@@ -931,22 +890,57 @@ endif
 
 ifneq ($(COMPILE_HEXITEC),0)
 
-HEXITEC_LDFLAGS	:= $(LDFLAGS) -L/opt/pleora/ebus_sdk/CentOS-RHEL-7-x86_64/lib
-HEXITEC_LDLIBS	:= $(LDLIBS) -lPvDevice -lPvStream -lPvBuffer -lPvGenICam -lPvBase -lPvSerial -lEbUtilsLib
-
+HEXITEC_LDFLAGS	:= -L/opt/pleora/ebus_sdk/CentOS-RHEL-7-x86_64/lib
+HEXITEC_LDLIBS	:= -lPvDevice -lPvStream -lPvBuffer -lPvGenICam -lPvBase -lPvSerial -lEbUtilsLib
 
 hexitec-name	:= hexitec
 hexitec-objs	:= ../camera/hexitec/src/Hexitec.o
 hexitec-ver		:= ../camera/hexitec/VERSION
-hexitec-flags	:= $(HEXITEC_LDFLAGS)
-hexitec-deps	:= $(HEXITEC_LDLIBS)
+hexitec-flags	:= $(LDFLAGS) $(HEXITEC_LDFLAGS)
+hexitec-libs	:= $(LDLIBS) $(HEXITEC_LDLIBS)
+hexitec-deps	:= $(DEPLIBS)
+hexitec-libdeps := $(call lib-deps,$(hexitec-deps))
+hexitec-libfull := $(call lib-full,$(hexitec-name),$(hexitec-ver))
 
-$(call lib-full,$(hexitec-name),$(hexitec-ver)): $(hexitec-objs)
-	$(call compile-lib,$(hexitec-name),$(hexitec-ver),$(hexitec-flags),$(hexitec-deps),$@,$+)
+$(hexitec-libfull): $(hexitec-objs) $(hexitec-libdeps)
+	$(call compile-lib,$(hexitec-name),$(hexitec-ver),\
+			   $(hexitec-deps),\
+			   $(hexitec-flags),$(hexitec-libs),$@,\
+			   $(hexitec-objs))
 	$(call create-links,$(hexitec-name),$(hexitec-ver))
 
-build_targets	+= $(call lib-full,$(hexitec-name),$(hexitec-ver))
+build_targets	+= $(hexitec-libfull)
+
 endif
+
+###########################
+# LIMA - SLSDETECTOR
+############################
+ifneq ($(COMPILE_SLSDETECTOR),0)
+
+SLSDETECTOR_LDFLAGS  := -L$(SLS_DETECTORS_DIR)/bin
+SLSDETECTOR_LDLIBS   := -lSlsDetector -lSlsReceiver
+
+slsdetector-name     := slsdetector
+slsdetector-objs     := ../camera/slsdetector/src/SlsDetector.o
+slsdetector-ver      := ../camera/slsdetector/VERSION
+slsdetector-flags    := $(LDFLAGS) $(SLSDETECTOR_LDFLAGS)
+slsdetector-libs     := $(LDLIBS) $(SLSDETECTOR_LDLIBS)
+slsdetector-deps     := $(DEPLIBS)
+slsdetector-libdeps  := $(call lib-deps,$(slsdetector-deps))
+slsdetector-libfull  := $(call lib-full,$(slsdetector-name),$(slsdetector-ver))
+
+$(slsdetector-libfull): $(slsdetector-objs) $(slsdetector-libdeps)
+	$(call compile-lib,$(slsdetector-name),$(slsdetector-ver),\
+			   $(slsdetector-deps),\
+			   $(slsdetector-flags),$(slsdetector-libs),$@,\
+			   $(slsdetector-objs))
+	$(call create-links,$(slsdetector-name),$(slsdetector-ver))
+
+build_targets   += $(slsdetector-libfull)
+
+endif
+
 
 src:		$(build_targets)
 

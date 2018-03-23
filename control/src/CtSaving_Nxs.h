@@ -22,6 +22,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include "lima/CtEvent.h"
 #include "lima/CtSaving.h"
 
 #include <nexuscpp/nexuscpp.h>
@@ -41,12 +42,14 @@ namespace lima
 	  virtual void* _open(const std::string &filename, std::ios_base::openmode flags);
 	  virtual void _close(void*);
 	  virtual long _writeFile(void*,Data &data, CtSaving::HeaderMap &aHeader, CtSaving::FileFormat);
-          virtual void _clear();
+      virtual void _clear();
+      virtual void _prepare(CtControl &control);          
 		
 	private:
     nxcpp::DataStreamer*        m_writer;
 	CtSaving::Parameters        m_pars;
     std::vector<std::string>    m_options;
+    CtEvent* m_event;
   };
 
 }

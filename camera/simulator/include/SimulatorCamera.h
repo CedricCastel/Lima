@@ -73,6 +73,10 @@ class LIBSIMULATOR_API Camera
 	void getMaxImageSize(Size& max_image_size);
 
 	void reset();
+  
+  //FT..
+  void computeNewXOffset(double xOffset);
+  void computeNewYOffset(double yOffset);
 
     enum SimuShutterMode {
 		    FRAME,
@@ -116,6 +120,10 @@ class LIBSIMULATOR_API Camera
 	int m_nb_frames;
 	TrigMode m_trig_mode;
 	SimuThread m_thread;
+
+  double m_x_offset;
+  double m_y_offset;
+  
 };
 
 LIBSIMULATOR_API std::ostream& operator <<(std::ostream& os, Camera& simu);

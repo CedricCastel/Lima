@@ -32,6 +32,7 @@
 #include "processlib/Bpm.h"
 #include "processlib/FlatfieldCorrection.h"
 #include "processlib/Flip.h"
+#include "processlib/Rotation.h"
 #include "processlib/Mask.h"
 #include "processlib/RoiCounter.h"
 #include "processlib/Roi2Spectrum.h"
@@ -60,6 +61,7 @@ namespace lima
       BPM,
       FLATFIELDCORRECTION,
       FLIP,
+      ROTATION,
       MASK,
       ROICOUNTERS,
       ROI2SPECTRUM,
@@ -171,6 +173,22 @@ namespace lima
     Tasks::Flip *m_opt;
   };
 
+  class LIMACORE_API SoftOpRotation : public SoftOpBaseClass
+  {
+  public:
+    enum Type {R_90,R_180,R_270};    
+    SoftOpRotation();
+    virtual ~SoftOpRotation();
+    
+    void setType(Type);
+    
+  protected:
+    virtual bool addTo(TaskMgr&,int stage);
+    virtual void prepare() {};
+  private:
+    Tasks::Rotation *m_opt;
+  };
+  
   class LIMACORE_API SoftOpMask : public SoftOpBaseClass
   {
   public:

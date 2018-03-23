@@ -28,6 +28,7 @@ static SoftOpKey SoftOpTable[] = {
   SoftOpKey(BPM,"Bpm"),
   SoftOpKey(FLATFIELDCORRECTION,"Flat field correction"),
   SoftOpKey(FLIP,"Flip"),
+  SoftOpKey(ROTATION,"Rotation"),
   SoftOpKey(MASK,"Mask"),
   SoftOpKey(ROICOUNTERS,"Roi counters"),
   SoftOpKey(ROI2SPECTRUM,"Roi 2 spectrum"),
@@ -134,6 +135,10 @@ void SoftOpExternalMgr::addOp(SoftOpId aSoftOpId,
       newInstance.m_opt = new SoftOpFlip();
       newInstance.m_linkable = true;
       break;
+    case ROTATION:
+      newInstance.m_opt = new SoftOpRotation();
+      newInstance.m_linkable = true;
+      break;	  
     case MASK:
       newInstance.m_opt = new SoftOpMask();
       newInstance.m_linkable = true;
@@ -285,6 +290,7 @@ void SoftOpExternalMgr::_checkIfPossible(SoftOpId aSoftOpId,
     case BINNING:
     case FLATFIELDCORRECTION:
     case FLIP:
+	case ROTATION:
     case MASK:
     case SOFTROI:
     case PEAKFINDER:

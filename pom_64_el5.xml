@@ -9,7 +9,7 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>LimaCore-amd64-Linux-gcc-shared-${mode}</artifactId>
-    <version>1.7.2-SNAPSHOT</version>
+    <version>1.7.7-SNAPSHOT</version>
 
     <packaging>nar</packaging>
     <name>LimaCore</name>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>fr.soleil.lib</groupId>
             <artifactId>LimaProcesslib-amd64-Linux-gcc-shared-${mode}</artifactId>
-            <version>1.3.5</version>
+            <version>1.3.7</version>
         </dependency>
     </dependencies>
 	

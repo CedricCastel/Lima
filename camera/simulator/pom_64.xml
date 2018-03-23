@@ -4,7 +4,7 @@
     <parent>
         <groupId>fr.soleil</groupId>
         <artifactId>super-pom-C-CPP</artifactId>
-        <version>16.3.4</version>
+        <version>RELEASE</version>
     </parent>
 
     <groupId>fr.soleil.lib.Lima.Camera</groupId>
@@ -14,12 +14,7 @@
     <packaging>nar</packaging>
     <name>LimaSimulator</name>
     <description>This module controls the Simulator Camera</description>
-	
-	<properties>
-		<!-- path to the 64 bits libs ${FL-64bits-libs} -->
-		<FL-64bits-libs>/home/informatique/ica/langlois/compil_64</FL-64bits-libs>
-	</properties>
-    
+	    
     <scm>
         <connection>scm:git:git://github.com/soleil-ica/Lima.git</connection>
         <developerConnection>scm:git:git://github.com/soleil-ica/Lima.git</developerConnection>
@@ -40,17 +35,9 @@
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>LimaCore-amd64-Linux-gcc-shared-${mode}</artifactId>
                     <version>1.7.7-SNAPSHOT</version>
-                </dependency>     
-                
-                <!-- <dependency>
-                    <groupId>ncsa.uiuc.edu</groupId>
-                    <artifactId>HDF5-${aol}-shared-release</artifactId>
-                    <version>1.8.13</version>
-                </dependency>    -->
-                        
+                </dependency>                             
             </dependencies>
         </profile>
-        <!--
         <profile>
             <id>Lima_windows</id>
             <activation>
@@ -62,29 +49,10 @@
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
-                    <version>1.7.2-SNAPSHOT</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>NexusCPP-${aol}-static-${mode}</artifactId>
-                    <version>3.1.5-vc9</version>
-                </dependency>
-                        
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>YAT-${aol}-static-${mode}</artifactId>
-                    <version>1.13.4-vc9</version>
-                </dependency>
-                    
-                <dependency>
-                    <groupId>ncsa.uiuc.edu</groupId>
-                    <artifactId>HDF5-${aol}-shared-release</artifactId>
-                    <version>1.8.13-vc9</version>
-                </dependency>    
+                    <version>1.7.7-SNAPSHOT</version>
+                </dependency>            
             </dependencies>
         </profile>
-        -->
     </profiles>
     
     <build>
@@ -101,30 +69,7 @@
                     </cpp>
 					<linker>
 					<libs>
-						<lib>
-							<!-- hdf5 (1.8.13) 64 -->
-							<name>hdf5</name>
-							<type>shared</type>
-							<directory>/users/opid00/test-ica/fl-ica/hdf5-1.8.13/build/lib</directory>
-						</lib>
-						<lib>
-							<!-- hdf5 (1.8.13) 64 -->
-							<name>hdf5_cpp</name>
-							<type>shared</type>
-							<directory>/users/opid00/test-ica/fl-ica/hdf5-1.8.13/build/lib</directory>
-						</lib>
-						<lib>
-							<!-- hdf5 (1.8.13) 64 -->
-							<name>hdf5_hl</name>
-							<type>shared</type>
-							<directory>/users/opid00/test-ica/fl-ica/hdf5-1.8.13/build/lib</directory>
-						</lib>
-						<lib>
-							<!-- hdf5 (1.8.13) 64 -->
-							<name>hdf5_hl_cpp</name>
-							<type>shared</type>
-							<directory>/users/opid00/test-ica/fl-ica/hdf5-1.8.13/build/lib</directory>
-						</lib>
+						
 					</libs>
 				   </linker>
                     <libraries>

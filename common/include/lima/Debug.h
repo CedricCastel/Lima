@@ -25,7 +25,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#ifdef SOLEIL_YAT_STREAM
+#ifdef WITH_YAT_STREAM
 //undef some Mx library CONSTANTS, otherwise compilation errors  with Yat/utils/Loging.h enum ELogLevel
 #undef LOG_INFO
 #undef LOG_EMERG
@@ -227,7 +227,7 @@ private:
 	static Flags s_type_flags;
 	static Flags s_fmt_flags;
 	static Flags s_mod_flags;
-#ifdef SOLEIL_YAT_STREAM   
+#ifdef WITH_YAT_STREAM   
     static std::ostringstream* oss_yat_stream;    
 #endif    
     static DebStream *s_deb_stream;
@@ -445,7 +445,7 @@ inline DebProxy::~DebProxy()
 {
 	if (!m_lock)
 		return;
-#ifdef SOLEIL_YAT_STREAM   
+#ifdef WITH_YAT_STREAM   
     YAT_INFO_STREAM((*DebParams::oss_yat_stream).str());    
     (*DebParams::oss_yat_stream).str("");    
 #endif
@@ -464,7 +464,7 @@ inline const DebProxy& DebProxy::operator <<(const T& o) const
 {
 	if (isActive()) 
     {
-#ifdef SOLEIL_YAT_STREAM              
+#ifdef WITH_YAT_STREAM              
         *DebParams::oss_yat_stream<< o;                 
 #else       
 		*DebParams::s_deb_stream<< o;           
@@ -588,6 +588,9 @@ inline DebProxy DebObj::write(DebType type, ConstStr file_name, int line_nr)
 	DebObj deb(getDebParams(), false, __FUNCTION__,			\
 		   getDebObjName(), __FILE__, __LINE__)
 
+#define DEB_PTR()							\
+	(&deb)
+
 #define DEB_FROM_PTR(deb_ptr)						\
 	DebObj& deb = *(deb_ptr)
 
@@ -628,6 +631,8 @@ inline DebProxy DebObj::write(DebType type, ConstStr file_name, int line_nr)
 #define DEB_OBJ_NAME(o) \
 	((o)->getDebObjName())
 
+#define DEB_CHECK_ANY(type)	deb.checkAny(type)
+
 #else //NO_LIMA_DEBUG
 
 #define DEB_GLOBAL_FUNCT() DebSink deb
@@ -635,6 +640,7 @@ inline DebProxy DebObj::write(DebType type, ConstStr file_name, int line_nr)
 #define DEB_DESTRUCTOR()  DebSink deb
 #define DEB_MEMBER_FUNCT() DebSink deb
 
+#define DEB_PTR()	NULL
 #define DEB_FROM_PTR(deb_ptr) DebSink deb
 #define DEB_STATIC_FUNCT() DEB_GLOBAL_FUNCT()
 #define DEB_SET_OBJ_NAME(n)
@@ -657,6 +663,8 @@ inline DebProxy DebObj::write(DebType type, ConstStr file_name, int line_nr)
 #define DEB_VAR7(v1, v2, v3, v4, v5, v6, v7)	""
 
 #define DEB_OBJ_NAME(o)
+
+#define DEB_CHECK_ANY(type)	0
 
 #endif //NO_LIMA_DEBUG
 } // namespace lima

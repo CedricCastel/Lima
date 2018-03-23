@@ -133,7 +133,7 @@ void CtSwBinRoiFlip::setRotation(RotationMode rotation)
 const Size& CtSwBinRoiFlip::getSize() const
 {
 	DEB_MEMBER_FUNCT();
-#ifndef SOLEIL_YAT_STREAM
+#ifndef WITH_YAT_STREAM
 	DEB_TRACE() << DEB_VAR3(m_max_size, m_bin, m_roi);
 #endif
 

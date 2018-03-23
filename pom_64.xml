@@ -8,13 +8,19 @@
     </parent>
 
     <groupId>fr.soleil.lib</groupId>
-    <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
+    <artifactId>LimaCore-amd64-Linux-gcc-shared-${mode}</artifactId>
     <version>1.7.7-SNAPSHOT</version>
 
     <packaging>nar</packaging>
     <name>LimaCore</name>
     <description>Library for IMage Acquisition</description>
 	
+	<properties>
+		<!-- path to the 64 bits libs -->
+		<!-- <libs-64bits>/home/informatique/ica/langlois/compil_64</libs-64bits> -->
+        <libs-64bits>/home/informatique/ica/noureddine/DeviceSources/lib-el6-64</libs-64bits>
+	</properties>
+  
     <scm>
         <connection>scm:git:git://github.com/soleil-ica/Lima.git</connection>
         <developerConnection>scm:git:git://github.com/soleil-ica/Lima.git</developerConnection>
@@ -25,7 +31,7 @@
         <!-- LimaProcesslib -->
         <dependency>
             <groupId>fr.soleil.lib</groupId>
-            <artifactId>LimaProcesslib-${aol}-shared-${mode}</artifactId>
+            <artifactId>LimaProcesslib-amd64-Linux-gcc-shared-${mode}</artifactId>
             <version>1.3.7</version>
         </dependency>
     </dependencies>
@@ -40,20 +46,6 @@
                 </os>
             </activation>
             <dependencies>
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>YAT-${aol}-shared-${mode}</artifactId>
-                </dependency>
-                           
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>NexusCPP-${aol}-shared-${mode}</artifactId>
-                </dependency>
-            
-                <dependency>
-                    <groupId>ncsa.uiuc.edu</groupId>
-                    <artifactId>HDF5-${aol}-shared-release</artifactId>
-                </dependency>
             </dependencies>
         </profile>
        
@@ -70,7 +62,7 @@
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>NexusCPP-${aol}-static-${mode}</artifactId>
-                    <version>3.1.5-vc9</version>
+                    <version>3.0.7-vc9</version>
                 </dependency>
                         
                 <dependency>
@@ -82,7 +74,7 @@
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>YAT-${aol}-static-${mode}</artifactId>
-                    <version>1.13.4-vc9</version>
+                    <version>1.10.1-vc9</version>
                 </dependency>                            
             </dependencies>
         </profile>
@@ -109,7 +101,11 @@
                             <includePath>control/src</includePath>
                             <includePath>control/software_operation/include</includePath>
                             <includePath>hardware/include</includePath>         
-                        
+							
+                            <includePath>${libs-64bits}/hdf5-1.8.16/include</includePath>
+                            <includePath>${libs-64bits}/yat-1.13.13/include</includePath>
+                            <includePath>${libs-64bits}/nexuscpp-3.2.2/include</includePath>                            
+							        
                         </includePaths>
                         <excludes>
                             <exclude>control/src/CtSaving_Cbf.cpp</exclude>	
@@ -117,15 +113,55 @@
                             <exclude>control/src/CtSaving_Tiff.cpp</exclude>
                             <exclude>control/src/CtSpsImage.cpp</exclude>
                             <!--<exclude>control/src/CtSaving_Hdf5.cpp</exclude>-->
-                            <!--<exclude>control/src/CtSaving_Nxs.cpp</exclude>-->
+                            <!-- <exclude>control/src/CtSaving_Nxs.cpp</exclude> -->
                             <exclude>camera/pilatus/doc/camera_sirius.def</exclude>                            
                         </excludes>
                         <defines>
                             <define>WITH_NXS_SAVING</define>
                             <define>WITH_HDF5_SAVING</define>
-                            <define>WITH_YAT_STREAM</define>  
                         </defines>
                     </cpp>
+					
+					<linker>
+					<libs>
+						<lib>
+							<!-- hdf5 (1.8.16) 64 -->
+							<name>hdf5</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+						</lib>
+						<lib>
+							<!-- hdf5 (1.8.16) 64 -->
+							<name>hdf5_cpp</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+						</lib>
+						<lib>
+							<!-- hdf5 (1.8.16) 64 -->
+							<name>hdf5_hl</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+						</lib>
+						<lib>
+							<!-- hdf5 (1.8.16) 64 -->
+							<name>hdf5_hl_cpp</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+						</lib>
+						<lib>
+							<!-- YAT (1.13.13) 64 -->
+							<name>YAT-amd64-Linux-gcc-shared-release-1.13.13</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/yat-1.13.13/lib</directory>
+						</lib>
+						<lib>
+							<!-- NexusCPP (3.2.2) 64 -->
+							<name>NexusCPP-amd64-Linux-gcc-shared-release-3.2.2</name>
+							<type>shared</type>
+							<directory>${libs-64bits}/nexuscpp-3.2.2/lib</directory>
+						</lib>                                                
+					</libs>
+				   </linker>
                                     
                     <libraries>
                         <library>
@@ -141,7 +177,6 @@
                             <cpp>
                                 <excludes>
                                     <exclude>common/src/RegExUtils.cpp</exclude>
-                                    <exclude>common/src/SimplePipe.cpp</exclude>
                                     <exclude>hardware/src/HwFileEventMgr.cpp</exclude>
                                 </excludes>
                                 <defines>

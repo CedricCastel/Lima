@@ -29,10 +29,6 @@ using namespace lima;
 using namespace lima::Simulator;
 using namespace std;
 
-// CCA : 14-04-17 : exposer time correction in the simulator camera : BEGIN
-#include "lima/Timestamp.h"
-// CCA : 14-04-17 : exposer time correction in the simulator camera : END
-
 Camera::SimuThread::SimuThread(Camera& simu)
 	: m_simu(&simu)
 {
@@ -79,7 +75,7 @@ void Camera::SimuThread::execStartAcq()
 	buffer_mgr.setStartTimestamp(Timestamp::now());
 
 	FrameBuilder& frame_builder = m_simu->m_frame_builder;
-	frame_builder.resetFrameNr();
+	frame_builder.resetFrameNr(m_acq_frame_nb);
 
 	int nb_frames = m_simu->m_trig_mode == IntTrig ? m_simu->m_nb_frames : m_acq_frame_nb + 1;
 	int& frame_nb = m_acq_frame_nb;
@@ -92,64 +88,24 @@ void Camera::SimuThread::execStartAcq()
 			return;
 		}
 		req_time = m_simu->m_exp_time;
-
-		// CCA : 14-04-17 : exposer time correction in the simulator camera : BEGIN
-		MemBuffer * TempBuffer    = NULL;
-		void      * TempBufferPtr = NULL;
-		Timestamp   startTime     ;
-		Timestamp   elapsedTimeSec;
-		FrameDim    frame_dim     ;
-		int         frame_size    ;
-
-		//-------------------------------------------------------
-		// allocation of a temporary buffer to draw the new frame
-		m_simu->getFrameDim(frame_dim);
-
-		frame_size = frame_dim.getMemSize();
-		if (frame_size <= 0) 
-			THROW_HW_ERROR(InvalidValue) << "Invalid " << DEB_VAR1(frame_dim);
-	    
-		TempBuffer    = new MemBuffer(frame_size);
-		TempBufferPtr = TempBuffer->getPtr();
-
-		//---------------------------------------------------------------------------
-		// Draw the next frame in the temporary buffer and calculate the drawing time
-		startTime = Timestamp::now();
-		frame_builder.getNextFrame(static_cast<unsigned char *>(TempBufferPtr));
-		elapsedTimeSec = Timestamp::now() - startTime;
-		// CCA : 14-04-17 : exposer time correction in the simulator camera : END
-
 		if (req_time > 0) {	
 			setStatus(Exposure);
-
-			// CCA : 14-04-17 : exposer time correction in the simulator camera : BEGIN
-			double TimeToWait = req_time - static_cast<double>(elapsedTimeSec);
-
-			if(TimeToWait > 0.0)
-			{
-				DEB_TRACE() << "SimuThread::execStartAcq() - exp sleep time:" << long(TimeToWait * 1e6) << " usec";
-				usleep(long(TimeToWait * 1e6));
-			}
-			//usleep(long(req_time * 1e6));
-			// CCA : 14-04-17 : exposer time correction in the simulator camera : END
+			usleep(long(req_time * 1e6));
 		}
 
 		setStatus(Readout);
 		void *ptr = buffer_mgr.getFrameBufferPtr(frame_nb);
 		typedef unsigned char *BufferPtr;
-
-		// CCA : 14-04-17 : exposer time correction in the simulator camera : BEGIN
-		//frame_builder.getNextFrame(BufferPtr(ptr));
-	    memcpy(ptr,TempBufferPtr,frame_size);
-		delete TempBuffer;
-		// CCA : 14-04-17 : exposer time correction in the simulator camera : END
+    //Setting offsets 
+    frame_builder.setXYOffsets(m_simu->m_x_offset, m_simu->m_y_offset);
+    
+		frame_builder.getNextFrame(BufferPtr(ptr));
 
 		HwFrameInfoType frame_info;
 		frame_info.acq_frame_nb = frame_nb;
 		buffer_mgr.newFrameReady(frame_info);
 
 		req_time = m_simu->m_lat_time;
-
 		if (req_time > 0) {
 			setStatus(Latency);
 			usleep(long(req_time * 1e6));
@@ -175,6 +131,8 @@ void Camera::init()
 	m_exp_time = 1.0;
 	m_lat_time = 0.0;
 	m_nb_frames = 1;
+  m_x_offset = 0;
+  m_y_offset = 0;
 }
 
 Camera::~Camera()
@@ -266,6 +224,16 @@ void Camera::reset()
 	stopAcq();
 
 	init();
+}
+
+void Camera::computeNewXOffset(double xOffset)
+{
+	this->m_x_offset = xOffset;
+}
+
+void Camera::computeNewYOffset(double yOffset)
+{
+	this->m_y_offset = yOffset;
 }
 
 HwInterface::StatusType::Basic Camera::getStatus()

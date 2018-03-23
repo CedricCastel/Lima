@@ -324,6 +324,9 @@ CtControl::CtControl(HwInterface *hw) :
 {
   DEB_CONSTRUCTOR();
 
+  // Forces initialisation of PoolThreadMgr (pthread_atfork)
+  PoolThreadMgr::get();
+
   m_ct_acq= new CtAcquisition(hw);
   m_ct_image= new CtImage(hw,*this);
   m_ct_buffer= new CtBuffer(hw);
@@ -631,7 +634,7 @@ void CtControl::getStatus(Status& status) const
   status = m_status;
   HwInterface::Status aHwStatus;
   m_hw->getStatus(aHwStatus);
-#ifndef SOLEIL_YAT_STREAM  
+#ifndef WITH_YAT_STREAM  
   DEB_TRACE() << DEB_VAR1(aHwStatus);
 #endif
   if(aHwStatus.acq == AcqFault)
@@ -1091,25 +1094,21 @@ long CtControl::_increment_image_cnt(Data& aData,
 				     long image_cnt,SortedDataType& cnt)
 {
   long expectedImageCnt = image_cnt + 1;
-  if(aData.frameNumber == expectedImageCnt)
+  if(aData.frameNumber != expectedImageCnt)
     {
-      while(!cnt.empty())
-	{
-	  SortedDataType::iterator i = cnt.begin();
-	  long nextExpectedImageCnt = expectedImageCnt + 1;
-	  if(nextExpectedImageCnt == i->frameNumber)
-	    {
-	      expectedImageCnt = nextExpectedImageCnt;
-	      cnt.erase(i);
-	    }
-	  else
-	    break;
-	}
-      return expectedImageCnt;
+      cnt.insert(aData);
+      return image_cnt;
     }
-  else
-    cnt.insert(aData);
-  return image_cnt;
+
+  while(!cnt.empty())
+    {
+      SortedDataType::iterator i = cnt.begin();
+      if(i->frameNumber != expectedImageCnt + 1)
+	break;
+      expectedImageCnt = i->frameNumber;
+      cnt.erase(i);
+    }
+  return expectedImageCnt;
 }
 
 /** @brief inc the save counter.
@@ -1278,7 +1277,7 @@ void CtControl::ImageStatus::reset()
   LastImageReady	= -1;
   LastImageSaved	= -1;
   LastCounterReady	= -1;
-#ifndef SOLEIL_YAT_STREAM  
+#ifndef WITH_YAT_STREAM  
   DEB_TRACE() << *this;
 #endif  
 }

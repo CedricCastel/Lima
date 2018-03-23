@@ -244,8 +244,8 @@ namespace lima {
       };
       struct cmpParameters
       {
-    bool operator() (const CtSaving::Parameters &p1,
-             const CtSaving::Parameters &p2) const
+	bool operator() (const CtSaving::Parameters &p1,
+			 const CtSaving::Parameters &p2) const
 	{
 	  return (p1.nextNumber < p2.nextNumber ||
 		  p1.prefix < p2.prefix ||

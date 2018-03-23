@@ -87,7 +87,14 @@ void SaveContainerNxs::_clear()
 	nxcpp::DataStreamer::ResetBufferIndex();
 }
 
-
+//--------------------------------------------------------------------------------------------------------------------
+//- Event rising by CtSaving when ???
+//--------------------------------------------------------------------------------------------------------------------
+void SaveContainerNxs::_prepare(CtControl& control) 
+{
+	DEB_MEMBER_FUNCT();
+	m_event = control.event();
+}
 //--------------------------------------------------------------------------------------------------------------------
 //- create nexus object
 //- Initialize nexus object
@@ -104,7 +111,6 @@ long SaveContainerNxs::_writeFile(void*,Data &aData,
 								  CtSaving::FileFormat aFormat)
 {
 	DEB_MEMBER_FUNCT();
-
 	try
 	{
 		yat::Timer t;
@@ -290,29 +296,37 @@ long SaveContainerNxs::_writeFile(void*,Data &aData,
 	catch (std::bad_alloc& ex)
 	{
 		DEB_TRACE() << "Bad alloc exception: " << ex.what();
+		Event *anEvent = new Event(Control,Event::Error,Event::Saving, Event::Default,ex.what());
+		m_event->reportEvent(anEvent);				
 		THROW_CTL_ERROR(Error) << "Bad alloc exception: " << ex.what();
 	}
 	catch(yat::Exception& ex)
 	{
-		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch NexusException";
-		std::stringstream my_error;
-		my_error.str("");
+		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch yat::Exception";
+		std::stringstream ss_errors;
+		ss_errors.str("");
 		for(unsigned i = 0; i < ex.errors.size(); i++)
 		{
-			my_error << ex.errors[i].desc;
+			ss_errors << ex.errors[i].desc<<std::endl;
 		}
-		DEB_TRACE() << my_error.str();
-		THROW_CTL_ERROR(Error) << my_error.str();
+		DEB_TRACE() << ss_errors.str();
+		Event *anEvent = new Event(Control,Event::Error,Event::Saving, Event::Default,ss_errors.str());
+		m_event->reportEvent(anEvent);		
+		THROW_CTL_ERROR(Error) << ss_errors.str();
 	}
 	catch (std::exception& ex)
 	{
-		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch exception";
+		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch std::exception";
+		Event *anEvent = new Event(Control,Event::Error,Event::Saving, Event::Default, ex.what());
+		m_event->reportEvent(anEvent);			
 		THROW_CTL_ERROR(Error) << "Standard exception: " << ex.what();
 	}
 	catch(...)
 	{
-		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch UNKNOWN Exception";
-		THROW_CTL_ERROR(Error) << "SaveContainerNxs::_writeFile() - catch UNKNOWN Exception";
+		DEB_TRACE() << "SaveContainerNxs::_writeFile() - catch Unknown Exception";
+		Event *anEvent = new Event(Control,Event::Error,Event::Saving, Event::Default, "Unknown Exception !");
+		m_event->reportEvent(anEvent);			
+		THROW_CTL_ERROR(Error) << "SaveContainerNxs::_writeFile() - catch Unknown Exception";
 	}
 }
 

@@ -122,7 +122,7 @@ DebParams::Flags DebParams::s_fmt_flags;
 DebParams::Flags DebParams::s_mod_flags;
 
 DebStream *DebParams::s_deb_stream = NULL;
-#ifdef SOLEIL_YAT_STREAM
+#ifdef WITH_YAT_STREAM
 	std::ostringstream *DebParams::oss_yat_stream = NULL;    
 #endif
 map<DebType,   string> *DebParams::s_type_name_map = NULL;
@@ -334,7 +334,7 @@ void DebParams::doInit()
 	s_type_flags  = DebTypeFatal | DebTypeError | DebTypeWarning;
 	s_type_flags |= DebTypeAlways;
 	s_deb_stream = new DebStream();
-#ifdef SOLEIL_YAT_STREAM
+#ifdef WITH_YAT_STREAM
 	oss_yat_stream = new std::ostringstream();
 #endif
 

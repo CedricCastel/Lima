@@ -191,6 +191,42 @@ bool SoftOpFlip::addTo(TaskMgr &aMgr,int stage)
   return true;
 }
 
+//-------------------- ROTATION --------------------
+				   
+/** @brief small wrapper around Rotation Task
+ */
+SoftOpRotation::SoftOpRotation() : 
+  SoftOpBaseClass()
+{
+  m_opt = new Tasks::Rotation();
+  m_opt->setProcessingInPlace(false);
+}
+
+SoftOpRotation::~SoftOpRotation()
+{
+  m_opt->unref();
+}
+
+void SoftOpRotation::setType(SoftOpRotation::Type aType)
+{
+	switch(aType)
+	{
+		case SoftOpRotation::R_90 :  m_opt->setType(Tasks::Rotation::R_90);
+			break;		
+		case SoftOpRotation::R_180 :  m_opt->setType(Tasks::Rotation::R_180);
+			break;
+		case SoftOpRotation::R_270 :  m_opt->setType(Tasks::Rotation::R_270);
+			break;
+		default : std::cout << "Unknown Rotation Type enum !";
+			break;
+	}
+}
+
+bool SoftOpRotation::addTo(TaskMgr &aMgr,int stage)
+{
+  aMgr.setLinkTask(stage,m_opt);
+  return true;
+}
 //-------------------- MASK --------------------
 				   
 /** @brief small wrapper around Mask Task

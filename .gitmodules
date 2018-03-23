@@ -52,9 +52,9 @@
 [submodule "camera/eiger"]
 	path = camera/eiger
 	url = git://github.com/soleil-ica/Lima-camera-eiger
-[submodule "camera/v4l2"]
-	path = camera/v4l2
-	url = git://github.com/esrf-bliss/Lima-camera-v4l2
+[submodule "camera/slsdetector"]
+	path = camera/slsdetector
+	url = git://github.com/esrf-bliss/Lima-camera-slsdetector
 [submodule "applications/tango/cpp"]
 	path = applications/tango/cpp
 	url = git://github.com/soleil-ica/Lima-tango-cpp

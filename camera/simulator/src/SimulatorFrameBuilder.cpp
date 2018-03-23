@@ -115,6 +115,9 @@ void FrameBuilder::init( FrameDim &frame_dim, Bin &bin, Roi &roi,
 
 	m_diffract_sx = 0;
 	m_diffract_sy = 0;
+  
+  m_x_offset = 0;
+  m_y_offset = 0;
 }
 
 
@@ -423,6 +426,17 @@ void FrameBuilder::setGrowFactor( const double &grow_factor )
 }
 
 /***************************************************************//**
+ * @brief Sets the x and y offset for a GAUSS mode
+ *
+ * @param[in] x_offset  a double
+ * @param[in] y_offset  a double
+ *******************************************************************/
+void FrameBuilder::setXYOffsets(double x_offset, double y_offset)
+{
+	m_x_offset = x_offset;
+  m_y_offset = y_offset;
+}
+/***************************************************************//**
  * @brief Gets the source displacement for diffraction
  *
  * @param[out] x, y  positions (double)
@@ -557,7 +571,7 @@ double FrameBuilder::dataXY( const PeakList &peaks, int x, int y )
 	}
 
 	for( p = peaks.begin( ); p != peaks.end( ); ++p ) {
-		val += gauss2D(gx, gy, p->x0, p->y0, p->fwhm, p->max);
+		val += gauss2D(gx, gy, (p->x0 + m_x_offset), (p->y0 + m_y_offset), p->fwhm, p->max);
 	}
 	val *= (1 + m_grow_factor * m_frame_nr);
 
