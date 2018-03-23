@@ -61,3 +61,6 @@
 [submodule "applications/tango/python"]
 	path = applications/tango/python
 	url = git://github.com/esrf-bliss/Lima-tango-python
+[submodule "camera/slsjungfrau"]
+	path = camera/slsjungfrau
+	url = https://github.com/CedricCastel/Lima-camera-slsjungfrau.git
