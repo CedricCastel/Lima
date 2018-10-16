@@ -1,0 +1,53 @@
+[INFO] 
+NOTE: Maven is executing in offline mode. Any artifacts not already in your local
+repository will be inaccessible.
+
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Building LimaCore
+[INFO]    task-segment: [clean, install]
+[INFO] ------------------------------------------------------------------------
+[INFO] [clean:clean]
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD ERROR
+[INFO] ------------------------------------------------------------------------
+[INFO] Failed to resolve artifact.
+
+Missing:
+----------
+1) fr.soleil.lib:LimaProcesslib-amd64-Linux-gcc-shared-release:jar:1.3.7
+
+  Try downloading the file manually from the project website.
+
+  Then, install it using the command: 
+      mvn install:install-file -DgroupId=fr.soleil.lib -DartifactId=LimaProcesslib-amd64-Linux-gcc-shared-release -Dversion=1.3.7 -Dpackaging=jar -Dfile=/path/to/file
+
+  Alternatively, if you host your own repository you can deploy the file there: 
+      mvn deploy:deploy-file -DgroupId=fr.soleil.lib -DartifactId=LimaProcesslib-amd64-Linux-gcc-shared-release -Dversion=1.3.7 -Dpackaging=jar -Dfile=/path/to/file -Durl=[url] -DrepositoryId=[id]
+
+  Path to dependency: 
+  	1) fr.soleil.lib:LimaCore-amd64-Linux-gcc-shared-release:nar:1.7.7-SNAPSHOT
+  	2) fr.soleil.lib:LimaProcesslib-amd64-Linux-gcc-shared-release:jar:1.3.7
+
+----------
+1 required artifact is missing.
+
+for artifact: 
+  fr.soleil.lib:LimaCore-amd64-Linux-gcc-shared-release:nar:1.7.7-SNAPSHOT
+
+from the specified remote repositories:
+  nexus (http://calypso/nexus/content/groups/public)
+
+
+
+NOTE: Maven is executing in offline mode. Any artifacts not already in your local
+repository will be inaccessible.
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] For more information, run Maven with the -e switch
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2 seconds
+[INFO] Finished at: Wed Sep 26 09:26:53 CEST 2018
+[INFO] Final Memory: 9M/23M
+[INFO] ------------------------------------------------------------------------

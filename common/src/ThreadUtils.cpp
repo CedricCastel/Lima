@@ -22,10 +22,16 @@
 #include "lima/ThreadUtils.h"
 #include "lima/Exceptions.h"
 #include <errno.h>
+#include <iomanip>
 #ifdef __unix
 #include <sys/time.h>
 #else
 #include <time_compat.h>
+#endif
+#include <unistd.h>
+
+#if !defined(_WIN32)
+#include <sys/syscall.h>
 #endif
 
 using namespace lima;
@@ -215,9 +221,30 @@ void Cond::broadcast()
     throw LIMA_COM_EXC(Error, "Error broadcast condition");
 }
 
+pid_t lima::GetThreadID() {
+
+#if defined(_WIN32)
+	return GetCurrentThreadId();
+#else
+	return syscall(SYS_gettid);
+#endif
+	
+}
+
+Thread::ExceptionCleanUp::ExceptionCleanUp(Thread& thread)
+	: m_thread(thread)
+{
+}
+
+Thread::ExceptionCleanUp::~ExceptionCleanUp()
+{
+	m_thread.m_exception_handled = true;
+}
+
 Thread::Thread()
 {
-	m_started = m_finished = false;
+	m_started = m_finished = m_exception_handled = false;
+	m_tid = 0;
 	pthread_attr_init(&m_thread_attr);
 }
 
@@ -259,20 +286,35 @@ bool Thread::hasFinished()
 	return m_finished;
 }
 
+pid_t Thread::getThreadID()
+{
+	return m_tid;
+}
+
 void *Thread::staticThreadFunction(void *data)
 {
+	using namespace std;
+
 	Thread *thread = (Thread *) data;
+	thread->m_tid = GetThreadID();
 
 	try {
 		thread->threadFunction();
 	} catch (...) {
-
+		if (!thread->m_exception_handled) {
+			ostream& os = cerr;
+			long long thread_id = (long long) pthread_self();
+			std::streamsize w = os.width();
+			os << "***** Thread " 
+			   << setw(8) << hex << thread_id << setw(w) << dec
+			   << " function exited due to an exception "
+			   << "without clean-up! *****" << endl;
+		}
 	}
 	
 	thread->m_finished = true;
 	return NULL;
 }
-
 
 CmdThread::AuxThread::AuxThread(CmdThread& master)
 	: m_master(&master)
@@ -292,26 +334,31 @@ CmdThread::CmdThread()
 	: m_thread(*this)
 {
 	m_status = InInit;
-	m_cmd = None;
+	m_status_history.set(InInit);
 }
 
 CmdThread::~CmdThread()
 {
-	if(m_thread.hasStarted())
-	{
+	using namespace std;
+
+	if (!m_thread.hasStarted())
+		return;
+
+	if (getStatus() != Finished) {
+		cerr << "***** Error: CmdThread did not call abort "
+		     << "in the derived class destructor! *****";
 		abort();
-		waitStatus(Finished);
 	}
 }
 
 AutoMutex CmdThread::lock() const
 {
-  return AutoMutex(m_cond.mutex(), AutoMutex::Locked);
+	return AutoMutex(m_cond.mutex(), AutoMutex::Locked);
 }
 
 AutoMutex CmdThread::tryLock() const
 {
-  return AutoMutex(m_cond.mutex(), AutoMutex::TryLocked);
+	return AutoMutex(m_cond.mutex(), AutoMutex::TryLocked);
 }
 
 int CmdThread::getStatus() const
@@ -322,28 +369,32 @@ int CmdThread::getStatus() const
 
 int CmdThread::getNextCmd() const
 {
-  AutoMutex l = lock();
-  return m_cmd;
+	AutoMutex l = lock();
+	return m_cmd.empty() ? None : m_cmd.front();
 }
 
 void CmdThread::setStatus(int status)
 {
 	AutoMutex l = lock();
 	m_status = status;
+	m_status_history.set(status);
 	m_cond.signal();
 }
 
 void CmdThread::waitStatus(int status)
 {
 	AutoMutex l = lock();
-	while (m_status != status)
+	while (!m_status_history.test(status))
 		m_cond.wait();
 }
 
 int CmdThread::waitNotStatus(int status)
 {
+	std::bitset<16> mask(0xffff);
+	mask.reset(status);
+
 	AutoMutex l = lock();
-	while (m_status == status)
+	while ((m_status_history & mask).none())
 		m_cond.wait();
 	return m_status;
 }
@@ -351,49 +402,60 @@ int CmdThread::waitNotStatus(int status)
 void CmdThread::sendCmd(int cmd)
 {
 	AutoMutex l = lock();
-	m_cmd = cmd;
-	m_cond.signal();
+	doSendCmd(cmd);
 }
+
 /** @brief send a command only if the return of if_test is true.
  *  
  *  function if_test get as argument the command and status
  */
-void CmdThread::sendCmdIf(int cmd,bool (*if_test)(int,int))
+void CmdThread::sendCmdIf(int cmd, bool (*if_test)(int,int))
 {
-  AutoMutex l = lock();
-  bool sendFlag = true;
-  if(if_test)
-    sendFlag = if_test(m_cmd,m_status);
-  if(sendFlag)
-    {
-      m_cmd = cmd;
-      m_cond.signal();
-    }
+	AutoMutex l = lock();
+
+	if (if_test && if_test(cmd, m_status))
+		doSendCmd(cmd);
 }
+
+void CmdThread::doSendCmd(int cmd)
+{
+	if (m_status == Finished)
+		throw LIMA_HW_EXC(Error, "Thread has Finished");
+
+	// Assume that we will have a call to waitStatus somewhere after the new command
+	m_status_history.reset();
+
+	m_cmd.push(cmd);
+	m_cond.signal();
+}
+
 void CmdThread::start()
 {
 	if (m_thread.hasStarted())
 		throw LIMA_COM_EXC(InvalidValue, "Thread already started");
 
-	m_cmd = Init;
+	m_cmd.push(Init);
 	m_thread.start();
 }
 
 void CmdThread::abort()
 {
-	if (getStatus() != Finished)
-		sendCmd(Abort);
+	if (getStatus() == Finished)
+		return;
+
+	sendCmd(Abort);
+	waitStatus(Finished);
 }
 
 int CmdThread::waitNextCmd()
 {
 	AutoMutex l = lock();
 
-	while (m_cmd == None)
-	  m_cond.wait();
+	while (m_cmd.empty())
+		m_cond.wait();
 
-	int cmd = m_cmd;
-	m_cmd = None;
+	int cmd = m_cmd.front();
+	m_cmd.pop();
 	return cmd;
 }
 
@@ -406,9 +468,6 @@ void CmdThread::cmdLoop()
 			throw LIMA_COM_EXC(InvalidValue, "Invalid None cmd");
 		case Init:
 			init();
-			break;
-		case Stop:
-			setStatus(Stopped);
 			break;
 		case Abort:
 			setStatus(Finished);

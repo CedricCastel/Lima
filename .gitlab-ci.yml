@@ -1,0 +1,54 @@
+# image : docker-registry.esrf.fr/bcu/lima-ci-debian8:latest
+#before_script :
+
+stages:
+  - build
+  - test
+
+build-python2 :
+  stage: build
+  script:
+    - update-alternatives --set python /usr/bin/python2.7
+    - ./install.sh --git tests python
+    - ls -l
+  artifacts:
+    paths:
+    - build/
+  tags:
+    - lima
+
+build-python3 :
+  stage: build
+  script:
+    - update-alternatives --set python /usr/bin/python3.4
+    - ./install.sh --git tests python
+    - ls -l
+  artifacts:
+    paths:
+    - build/
+  tags:
+    - lima
+
+
+test-python2 :
+  stage: test
+  dependencies:
+    - build-python2
+  script:
+    - update-alternatives --set python /usr/bin/python2.7
+    - cd build/
+    - ctest --timeout 10 --output-on-failure
+  tags:
+    - lima
+
+
+test-python3 :
+  stage: test
+  dependencies:
+    - build-python3
+  script:
+    - update-alternatives --set python /usr/bin/python3.4
+    - cd build/
+    - ctest --timeout 10 --output-on-failure
+  tags:
+    - lima

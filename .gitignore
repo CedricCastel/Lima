@@ -23,9 +23,8 @@ install
 /.cproject
 /.pydevproject
 /.settings
-
-/Lima.config
-/Lima.creator
-/Lima.creator.user
-/Lima.files
-/Lima.includes
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+scripts/config.txt
+build/

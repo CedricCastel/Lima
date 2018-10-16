@@ -25,6 +25,13 @@
 #include "lima/LimaCompatibility.h"
 #include "lima/AutoObj.h"
 #include <pthread.h>
+#include <bitset>
+#include <queue>
+
+#if defined(_WIN32)
+#include <WinBase.h>
+#define pid_t DWORD
+#endif
 
 namespace lima
 {
@@ -78,14 +85,13 @@ class LIMACORE_API Mutex
 
 
 typedef AutoLock<Mutex> AutoMutex;
-typedef AutoUnlock<Mutex> AutoMutexUnlock;
 
 class LIMACORE_API Cond
 {
  public:
 	Cond();
 	~Cond();
-	
+
 	void acquire();
 	void release();
 	Mutex& mutex() {return m_mutex;}
@@ -97,6 +103,9 @@ class LIMACORE_API Cond
 	pthread_cond_t m_cond;
 	Mutex	       m_mutex;
 };
+
+
+pid_t GetThreadID();
 
 
 class LIMACORE_API Thread
@@ -111,16 +120,32 @@ class LIMACORE_API Thread
 	bool hasStarted();
 	bool hasFinished();
 
+	pid_t getThreadID();
+
  protected:
+	class LIMACORE_API ExceptionCleanUp
+	{
+	public:
+		ExceptionCleanUp(Thread& thread);
+		virtual ~ExceptionCleanUp();
+	protected:
+		Thread& m_thread;
+	};
+
 	virtual void threadFunction() = 0;
 
 	pthread_attr_t	m_thread_attr;
 	pthread_t m_thread;
+	pid_t m_tid;
+
  private:
+	friend class ExceptionCleanUp;
+
 	static void *staticThreadFunction(void *data);
 
 	bool m_started;
 	bool m_finished;
+	bool m_exception_handled;
 };
 
 
@@ -128,11 +153,11 @@ class LIMACORE_API CmdThread
 {
  public:
 	enum { // Status
-		InInit, Stopped, Finished, MaxThreadStatus,
+		InInit = 0, Finished, MaxThreadStatus,
 	};
 
 	enum { // Cmd
-		None, Init, Stop, Abort, MaxThreadCmd,
+		None, Init, Abort, MaxThreadCmd,
 	};
 
 	CmdThread();
@@ -142,12 +167,12 @@ class LIMACORE_API CmdThread
 	virtual void abort();
 
 	void sendCmd(int cmd);
-	void sendCmdIf(int cmd,bool (*if_test)(int,int));
+	void sendCmdIf(int cmd, bool (*if_test)(int, int));
 	int getStatus() const;
 	int getNextCmd() const;
 	void waitStatus(int status);
 	int waitNotStatus(int status);
-	
+
  protected:
 	virtual void init() = 0;
 	virtual void execCmd(int cmd) = 0;
@@ -170,11 +195,19 @@ class LIMACORE_API CmdThread
 	};
 	friend class AuxThread;
 	void cmdLoop();
+	void doSendCmd(int cmd);
 
-	AuxThread m_thread;
+	int m_status;
+
+	//No need to have dll-interface for private variables
+#pragma warning( push )  
+#pragma warning( disable : 4251 ) 
+	std::bitset<16> m_status_history;
+	std::queue<int> m_cmd;
+#pragma warning( pop ) 
+
 	mutable Cond m_cond;
-	volatile int m_status;
-	volatile int m_cmd;
+	AuxThread m_thread;
 };
 
 #define EXEC_ONCE(statement)						\

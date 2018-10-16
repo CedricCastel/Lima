@@ -9,7 +9,7 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
-    <version>1.7.7-SNAPSHOT</version>
+    <version>1.7.7</version>
 
     <packaging>nar</packaging>
     <name>LimaCore</name>
@@ -21,25 +21,25 @@
         <url>https://github.com/soleil-ica/Lima</url>
     </scm>
 
-    <dependencies>
-        <!-- LimaProcesslib -->
-        <dependency>
-            <groupId>fr.soleil.lib</groupId>
-            <artifactId>LimaProcesslib-${aol}-shared-${mode}</artifactId>
-            <version>1.3.7</version>
-        </dependency>
-    </dependencies>
 	
     <profiles>
-    
         <profile>
-            <id>Lima_linux</id>
+            <id>linux_32</id>
             <activation>
-                <os>
-                    <family>Linux</family>
-                </os>
+                <activeByDefault>true</activeByDefault>                
+                <property>
+                    <name>env</name>
+                    <value>linux_32</value>
+                </property>
             </activation>
             <dependencies>
+                <!-- LimaProcesslib -->
+                <dependency>
+                    <groupId>fr.soleil.lib</groupId>
+                    <artifactId>LimaProcesslib-${aol}-shared-${mode}</artifactId>
+                    <version>1.3.8</version>
+                </dependency>
+                        
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>YAT-${aol}-shared-${mode}</artifactId>
@@ -49,24 +49,215 @@
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>NexusCPP-${aol}-shared-${mode}</artifactId>
                 </dependency>
-            
+
                 <dependency>
                     <groupId>ncsa.uiuc.edu</groupId>
                     <artifactId>HDF5-${aol}-shared-release</artifactId>
                 </dependency>
             </dependencies>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.freehep</groupId>
+                        <artifactId>freehep-nar-plugin</artifactId>
+                        <configuration>
+                            <cpp>
+                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <includes>
+                                    <include>common/src/*.cpp</include>
+                                    <include>control/src/*.cpp</include>
+                                    <include>control/software_operation/src/*.cpp</include>
+                                    <include>hardware/src/*.cpp</include>
+                                </includes>
+                                
+                                <includePaths>
+                                    <includePath>common/include</includePath>
+                                    <includePath>control/include</includePath>
+                                    <includePath>control/src</includePath>
+                                    <includePath>control/software_operation/include</includePath>
+                                    <includePath>hardware/include</includePath>         
+                        
+                                </includePaths>
+                                <excludes>
+                                    <exclude>control/src/CtSaving_Cbf.cpp</exclude>	
+                                    <exclude>control/src/CtSaving_Fits.cpp</exclude>
+                                    <exclude>control/src/CtSaving_Tiff.cpp</exclude>
+                                    <exclude>control/src/CtSpsImage.cpp</exclude>
+                                    <!--<exclude>control/src/CtSaving_Hdf5.cpp</exclude>-->
+                                    <!--<exclude>control/src/CtSaving_Nxs.cpp</exclude>-->
+                                    <exclude>camera/pilatus/doc/camera_sirius.def</exclude>                            
+                                    <exclude>camera/pilatus/doc/camera_px1.def</exclude>
+                                </excludes>
+                                
+                                <defines>
+                                    <define>WITH_NXS_SAVING</define>
+                                    <define>WITH_HDF5_SAVING</define>
+                                    <define>WITH_YAT_STREAM</define>  
+                                </defines>
+                            </cpp>
+                                    
+                            <libraries>
+                                <library>
+                                    <type>shared</type>
+                                </library>
+                            </libraries>           
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>fr.soleil.maven.plugins</groupId>
+                        <artifactId>maven-check-plugin</artifactId>
+                        <configuration>
+                            <enable>false</enable>
+                        </configuration>
+                    </plugin>                    
+                </plugins>
+            </build>
         </profile>
        
         <profile>
-            <id>Lima_windows</id>
+            <id>linux_64</id>
             <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
+                <activeByDefault>false</activeByDefault>                
+                <property>
+                    <name>env</name>
+                    <value>linux_64</value>
+                </property>
+            </activation>
+            <properties>
+                <!-- path to the 64 bits libs -->
+                <libs-64bits>/home/informatique/ica/ica/LIB_EL6_64</libs-64bits>
+            </properties>
+                
+            <!-- LimaProcesslib -->
+            <dependencies>            
+                <dependency>
+                    <groupId>fr.soleil.lib</groupId>
+                    <artifactId>LimaProcesslib-${aol}-shared-${mode}</artifactId>
+                    <version>1.3.8</version>
+                </dependency>
+            </dependencies>    
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.freehep</groupId>
+                        <artifactId>freehep-nar-plugin</artifactId>
+                        <configuration>
+                            <cpp>
+                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <includes>
+                                    <include>common/src/*.cpp</include>
+                                    <include>control/src/*.cpp</include>
+                                    <include>control/software_operation/src/*.cpp</include>
+                                    <include>hardware/src/*.cpp</include>
+                                </includes>
+                                
+                                <includePaths>
+                                    <includePath>common/include</includePath>
+                                    <includePath>control/include</includePath>
+                                    <includePath>control/src</includePath>
+                                    <includePath>control/software_operation/include</includePath>
+                                    <includePath>hardware/include</includePath>         
+							
+                                    <includePath>${libs-64bits}/hdf5-1.8.16/include</includePath>
+                                    <includePath>${libs-64bits}/yat-1.13.13/include</includePath>
+                                    <includePath>${libs-64bits}/nexuscpp-3.2.2/include</includePath>                            
+							        
+                                </includePaths>
+                                <excludes>
+                                    <exclude>control/src/CtSaving_Cbf.cpp</exclude>	
+                                    <exclude>control/src/CtSaving_Fits.cpp</exclude>
+                                    <exclude>control/src/CtSaving_Tiff.cpp</exclude>
+                                    <exclude>control/src/CtSpsImage.cpp</exclude>
+                                    <!--<exclude>control/src/CtSaving_Hdf5.cpp</exclude>-->
+                                    <!-- <exclude>control/src/CtSaving_Nxs.cpp</exclude> -->
+                                    <exclude>camera/pilatus/doc/camera_sirius.def</exclude>                            
+                                </excludes>
+                                <defines>
+                                    <define>WITH_NXS_SAVING</define>
+                                    <define>WITH_HDF5_SAVING</define>
+                                </defines>
+                            </cpp>
+					
+                            <linker>
+                                <libs>
+                                    <lib>
+                                        <!-- hdf5 (1.8.16) 64 -->
+                                        <name>hdf5</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+                                    </lib>
+                                    <lib>
+                                        <!-- hdf5 (1.8.16) 64 -->
+                                        <name>hdf5_cpp</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+                                    </lib>
+                                    <lib>
+                                        <!-- hdf5 (1.8.16) 64 -->
+                                        <name>hdf5_hl</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+                                    </lib>
+                                    <lib>
+                                        <!-- hdf5 (1.8.16) 64 -->
+                                        <name>hdf5_hl_cpp</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/hdf5-1.8.16/lib</directory>
+                                    </lib>
+                                    <lib>
+                                        <!-- YAT (1.13.13) 64 -->
+                                        <name>YAT</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/yat-1.13.13/lib</directory>
+                                    </lib>
+                                    <lib>
+                                        <!-- NexusCPP (3.2.2) 64 -->
+                                        <name>NexusCPP</name>
+                                        <type>shared</type>
+                                        <directory>${libs-64bits}/nexuscpp-3.2.2/lib</directory>
+                                    </lib>                                                
+                                </libs>
+                            </linker>
+                                    
+                            <libraries>
+                                <library>
+                                    <type>shared</type>
+                                </library>
+                            </libraries>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>fr.soleil.maven.plugins</groupId>
+                        <artifactId>maven-check-plugin</artifactId>
+                        <configuration>
+                            <enable>false</enable>
+                        </configuration>
+                    </plugin>                    
+                </plugins>
+            </build>
+                                
+        </profile>
+               
+        <profile>
+            <id>win_32</id>
+            <activation>            
+                <activeByDefault>false</activeByDefault>                
+                <property>
+                    <name>env</name>
+                    <value>win_32</value>
+                </property>
             </activation>
             <dependencies>
+                <!-- LimaProcesslib -->        
+                <dependency>
+                    <groupId>fr.soleil.lib</groupId>
+                    <artifactId>LimaProcesslib-${aol}-shared-${mode}</artifactId>
+                    <version>1.3.8</version>
+                </dependency>
+                            
                 <!-- For Nexus Saving -->
-
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>NexusCPP-${aol}-static-${mode}</artifactId>
@@ -85,64 +276,40 @@
                     <version>1.13.4-vc9</version>
                 </dependency>                            
             </dependencies>
-        </profile>
-    </profiles>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.freehep</groupId>
-                <artifactId>freehep-nar-plugin</artifactId>
-                <configuration>
-                    <cpp>
-                        <sourceDirectory>${project.basedir}</sourceDirectory>
-                        <includes>
-                            <include>common/src/*.cpp</include>
-                            <include>control/src/*.cpp</include>
-                            <include>control/software_operation/src/*.cpp</include>
-                            <include>hardware/src/*.cpp</include>
-                        </includes>
-                                
-                        <includePaths>
-                            <includePath>common/include</includePath>
-                            <includePath>control/include</includePath>
-                            <includePath>control/src</includePath>
-                            <includePath>control/software_operation/include</includePath>
-                            <includePath>hardware/include</includePath>         
-                        
-                        </includePaths>
-                        <excludes>
-                            <exclude>control/src/CtSaving_Cbf.cpp</exclude>	
-                            <exclude>control/src/CtSaving_Fits.cpp</exclude>
-                            <exclude>control/src/CtSaving_Tiff.cpp</exclude>
-                            <exclude>control/src/CtSpsImage.cpp</exclude>
-                            <!--<exclude>control/src/CtSaving_Hdf5.cpp</exclude>-->
-                            <!--<exclude>control/src/CtSaving_Nxs.cpp</exclude>-->
-                            <exclude>camera/pilatus/doc/camera_sirius.def</exclude>                            
-                        </excludes>
-                        <defines>
-                            <define>WITH_NXS_SAVING</define>
-                            <define>WITH_HDF5_SAVING</define>
-                            <define>WITH_YAT_STREAM</define>  
-                        </defines>
-                    </cpp>
-                                    
-                    <libraries>
-                        <library>
-                            <type>shared</type>
-                        </library>
-                    </libraries>
-                    <specificConfigurations>
-                        <specificConfiguration>
-                            <id>win32 platform</id>
-                            <activation>
-                                <os>Windows</os>
-                            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.freehep</groupId>
+                        <artifactId>freehep-nar-plugin</artifactId>
+                        <configuration>
                             <cpp>
+                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <includes>
+                                    <include>common/src/*.cpp</include>
+                                    <include>control/src/*.cpp</include>
+                                    <include>control/software_operation/src/*.cpp</include>
+                                    <include>hardware/src/*.cpp</include>
+                                </includes>
+                                
+                                <includePaths>
+                                    <includePath>common/include</includePath>
+                                    <includePath>control/include</includePath>
+                                    <includePath>control/src</includePath>
+                                    <includePath>control/software_operation/include</includePath>
+                                    <includePath>hardware/include</includePath>         
+                        
+                                </includePaths>
                                 <excludes>
+                                    <exclude>control/src/CtSaving_Cbf.cpp</exclude>	
+                                    <exclude>control/src/CtSaving_Fits.cpp</exclude>
+                                    <exclude>control/src/CtSaving_Tiff.cpp</exclude>
+                                    <exclude>control/src/CtSpsImage.cpp</exclude>
+                                    <exclude>control/src/CtSaving_Hdf5.cpp</exclude>
+                                    <!--<exclude>control/src/CtSaving_Nxs.cpp</exclude>-->
+                                    <exclude>camera/pilatus/doc/camera_sirius.def</exclude>      
                                     <exclude>common/src/RegExUtils.cpp</exclude>
                                     <exclude>common/src/SimplePipe.cpp</exclude>
-                                    <exclude>hardware/src/HwFileEventMgr.cpp</exclude>
+                                    <exclude>hardware/src/HwFileEventMgr.cpp</exclude>                                                          
                                 </excludes>
                                 <defines>
                                     <define>LIMACORE_EXPORTS</define>
@@ -150,23 +317,34 @@
                                     <define>NDEBUG</define>
                                     <define>_WINDOWS</define>
                                     <define>_USRDLL</define>
-                                    <define>_WIN32_WINNT=0x0502</define> <!-- For Windows XP Support -->
-                                 
+                                    <define>_WIN32_WINNT=0x0502</define> <!-- For Windows XP Support -->                                    
+                                    <define>WITH_NXS_SAVING</define>
+                                    <!--<define>WITH_HDF5_SAVING</define>-->
+                                    <define>WITH_YAT_STREAM</define>  
                                 </defines>
                             </cpp>
-                        </specificConfiguration>
-                    </specificConfigurations>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>fr.soleil.maven.plugins</groupId>
-                <artifactId>maven-check-plugin</artifactId>
-                <configuration>
-                    <enable>false</enable>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+                                    
+                            <libraries>
+                                <library>
+                                    <type>shared</type>
+                                </library>
+                            </libraries>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>fr.soleil.maven.plugins</groupId>
+                        <artifactId>maven-check-plugin</artifactId>
+                        <configuration>
+                            <enable>false</enable>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+                
+        </profile>
+    </profiles>
+
+  
 
     <developers>
         <developer>

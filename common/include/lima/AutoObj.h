@@ -103,12 +103,12 @@ private:
 	{
 	public:
 		AutoLockData(M& mutex, int state=Locked) 
-			: m(mutex), l(0), ul_at_end(true)
+			: m(mutex), l(false), ul_at_end(true)
 		{
 			switch (state) { 
 			case Locked:     lock();    break;
 			case TryLocked:  tryLock(); break;
-			case PrevLocked: l = 1;     break;
+			case PrevLocked: l = true;  break;
 			default: break;
 			}
 		}
@@ -132,23 +132,20 @@ private:
 
 		void lock()
 		{ 
-			if (!l++)
 				m.lock(); 
+			l = true; 
 		}
 
 		void unlock()
 		{ 
-			if (!--l)
 				m.unlock(); 
+			l = false; 
 		}
 
 		bool tryLock()
 		{ 
-			if (!l)
 				l = m.tryLock(); 
-			else
-				l++;
-			return !!l;
+			return l;
 		}
 
 		void leaveLocked()
@@ -165,7 +162,7 @@ private:
 	private:
 		AutoCounter c;
 		M& m;
-		int l;
+		bool l;
 		bool ul_at_end;
 	};
 
@@ -181,26 +178,6 @@ private:
 
 	AutoLockData *d;
 };
-
-
-template <class M>
-class AutoUnlock
-{
- public:
-	AutoUnlock(const AutoUnlock& o)
-		: l(o.l)
-	{ l.unlock(); }
-	 
-	AutoUnlock(AutoLock<M>& p)
-		: l(p)
-	{ l.unlock(); }
-	 
-	~AutoUnlock()
-	{ l.lock(); }
-	 
- private:
-	 AutoLock<M>& l;
- };
 
 
 /********************************************************************
@@ -251,7 +228,7 @@ public:
 		return *this; 
 	}
 
-	AutoPtr& operator =(const AutoPtr& o)
+	AutoPtr& operator =(AutoPtr& o)
 	{
 		AutoPtrData *od = o.getData(); // protects against "a = a"
 		putData(); 

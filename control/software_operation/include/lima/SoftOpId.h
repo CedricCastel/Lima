@@ -51,6 +51,11 @@ namespace lima
 
     virtual bool addTo(TaskMgr&,int stage) = 0;
     virtual void prepare() = 0;
+
+  public:
+    // By default the task is active. Some Op may be in the pipeline but not actually active, e.g.
+    // RoiCounters, Roi2Spectrum without Rois defined.
+    virtual bool isActive() const { return true; }
   };
 
   enum SoftOpId
@@ -89,6 +94,9 @@ namespace lima
 		   const std::string &anAlias) :
       m_key(akey),
       m_alias(anAlias),m_linkable(false),m_opt(NULL) {}
+
+    bool isActive() const { return m_opt->isActive(); }
+
     SoftOpKey		m_key;
     std::string		m_alias;
     bool		m_linkable;
@@ -255,6 +263,11 @@ namespace lima
     int size() const
     {
       return m_manager_tasks.size();
+    }
+
+    bool empty() const
+    {
+      return m_manager_tasks.empty();
     }
 
     NameMapIterator begin()
@@ -425,6 +438,8 @@ namespace lima
 
     void setBufferSize(int size);
     void getBufferSize(int &size) const;
+
+    /*override*/ bool isActive() const { return !m_task_manager.empty(); }
     
   protected:
     virtual bool addTo(TaskMgr&,int stage);
@@ -617,6 +632,8 @@ namespace lima
 
     void setBufferSize(int size);
     void getBufferSize(int &size) const;
+
+    /*override*/ bool isActive() const { return !m_task_manager.empty(); }
     
   protected:
     virtual bool addTo(TaskMgr&,int stage);
