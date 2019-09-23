@@ -34,7 +34,7 @@ def set_project_dir(sub_dir):
   os.chdir(project_dir)
 
 #------------------------------------------------------------------------------
-# Copy library
+# Copy files
 #------------------------------------------------------------------------------
 def copy_file_ext(from_path, to_path, file_ext):
 
@@ -55,10 +55,8 @@ def copy_file_ext(from_path, to_path, file_ext):
 # Compilation
 #------------------------------------------------------------------------------
 def build(pom_file_options = ""):
-  if not copyonly:
-    if platform == "linux64":
-        pom_file_options = " --file pom_64.xml"
 
+  if not copyonly:
     print "Maven command = ", maven_clean_install + pom_file_options + maven_options
     rc = os.system(maven_clean_install + pom_file_options + maven_options)
     if rc != 0:
@@ -111,19 +109,21 @@ def build_device(target_path):
 #------------------------------------------------------------------------------
 def build_lima_core(target_path):
   print 'Building Lima:\n'
-  set_project_dir('.')
-  build(pom_file_options = maven_platform_options)
+  
+  build_plugin(".",target_path)
+  # set_project_dir('.')
+  # build(pom_file_options = maven_platform_options)
 
-  if "linux" in sys.platform:
-    if target_path is not None:
-      dest_path = os.path.join(target_path, '')
-      copy_file_ext(src_path, dest_path, '.so')
-  if "win32" in sys.platform:
-    if target_path is not None:
-      dest_path = os.path.join(target_path, '')
-      copy_file_ext(src_path, dest_path, '.dll')
-      copy_file_ext(src_path, dest_path, '.pdb')
-  print '\n'
+  # if "linux" in sys.platform:
+    # if target_path is not None:
+      # dest_path = os.path.join(target_path, '')
+      # copy_file_ext(src_path, dest_path, '.so')
+  # if "win32" in sys.platform:
+    # if target_path is not None:
+      # dest_path = os.path.join(target_path, '')
+      # copy_file_ext(src_path, dest_path, '.dll')
+      # copy_file_ext(src_path, dest_path, '.pdb')
+  # print '\n'
 
 #------------------------------------------------------------------------------
 # build the Plugin 'plugin'
@@ -134,16 +134,21 @@ def build_plugin(plugin,target_path):
 
   print "Building:    " , plugin, "\n"
   if plugin == "camera/eiger":
-    #specific treatment for the EigerAPI library
+    # specific treatment for the EigerAPI library
+    print "Building first:    " , plugin+'/sdk/linux/EigerAPI', "\n"
     set_project_dir(plugin+'/sdk/linux/EigerAPI')	
-    build()
+    build(pom_file_options = maven_platform_options)
+    # copy EigerAPI sdk
     if "linux" in sys.platform:
       if target_path is not None:
         dest_path = os.path.join(target_path, '')
         copy_file_ext(src_path, dest_path, '.so')	
+        
+  # compil plugin
   set_project_dir(plugin)
   build(pom_file_options = maven_platform_options)
 
+  # copy plugin if needed     
   if "linux" in sys.platform:
     if target_path is not None:
       dest_path = os.path.join(target_path, '')
@@ -185,19 +190,19 @@ if __name__ == "__main__":
   if "linux" in sys.platform:
     if "i686" in platform.machine():
         platform = "linux32"
-        camera_list = ["aviex", "basler", "eiger", "imxpad", "marccd","merlin", "pilatus","prosilica","simulator","xpad"]
+        camera_list = ["aviex", "basler", "eiger", "imxpad", "marccd","merlin", "pilatus","prosilica","simulator","ufxc", "xpad"]
         maven_platform_options = " -Denv=linux_32"
         src_path = './target/nar/lib/i386-Linux-g++/shared/'
         device_src_path = './target/nar/bin/i386-Linux-g++/'
     elif "x86_64" in platform.machine():
         platform = "linux64"
-        camera_list = ["eiger","slsjungfrau","simulator"]
+        camera_list = ["eiger","slsjungfrau","lambda","merlin","simulator"]
         maven_platform_options = " --file pom_64.xml"
         src_path = './target/nar/lib/i386-Linux-g++/shared/'
         device_src_path = './target/nar/bin/i386-Linux-g++/'
   if "win32" in sys.platform:
     platform = "win32"
-    camera_list = ["andor", "hamamatsu", "pco","perkinelmer","roperscientific","simulator","uview"]
+    camera_list = ["andor", "dhyana", "hamamatsu", "pco","perkinelmer","roperscientific","simulator","uview"]
     maven_platform_options = " -Denv=win_32"
     src_path = './target/nar/lib/x86-Windows-msvc/shared/'
     device_src_path = './target/nar/bin/x86-Windows-msvc/'
@@ -218,6 +223,7 @@ if __name__ == "__main__":
   parser.add_argument("-m","--multiproc", help="cameras will be compiled in multiprocessing way",action="store_true")
   parser.add_argument("-d","--directory", help="automatically install Lima binaries into the specified installation directory")
   parser.add_argument("-c","--copyonlydir", help="only install Lima binaries into the specified installation directory")
+  parser.add_argument("-e","--env", help="set the env option for the pom: eg: -e win_32_vc12 will set: -Denv=win_32_vc12")
 
   args = parser.parse_args()
   
@@ -228,6 +234,9 @@ if __name__ == "__main__":
 
   if args.pomfile:
     maven_platform_options = " --file " + args.pomfile
+    
+  if args.env:
+    maven_platform_options += " -Denv=" + args.env
 
   if args.quiet:
     maven_options += " -q"
@@ -288,7 +297,7 @@ if __name__ == "__main__":
                     build_plugin('camera/'+cam, target_path)
                     break
 
-        # display list of copied files, if -d option is used
+        # display list of copied files, if -d or -c option is used
         if args.directory or args.copyonlydir:
             print '\n'
             print '============================================='

@@ -60,10 +60,16 @@
 	url = git://github.com/soleil-ica/Lima-tango-cpp
 [submodule "camera/slsjungfrau"]
 	path = camera/slsjungfrau
-	url = git@github.com:soleil-ica/Lima-camera-slsjungfrau.git
+	url = git://github.com/soleil-ica/Lima-camera-slsjungfrau.git
 [submodule "camera/lambda"]
 	path = camera/lambda
-	url = git@github.com:soleil-ica/Lima-camera-lambda.git
+	url = git://github.com/soleil-ica/Lima-camera-lambda.git
 [submodule "camera/ufxc"]
 	path = camera/ufxc
-	url = git@github.com:soleil-ica/Lima-camera-ufxc.git
+	url = git://github.com/soleil-ica/Lima-camera-ufxc.git
+[submodule "camera/dhyana"]
+	path = camera/dhyana
+	url = git://github.com/soleil-ica/Lima-camera-dhyana.git
+[submodule "camera/xspress3"]
+	path = camera/xspress3
+	url = git://github.com/soleil-ica/Lima-camera-xspress3.git

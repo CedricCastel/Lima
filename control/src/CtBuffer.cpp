@@ -302,6 +302,7 @@ void CtBuffer::transformHwFrameInfoToData(Data &fdata,
   case Bpp32F:
     fdata.type = Data::FLOAT; break;
   case Bpp1:
+  case Bpp2:
   case Bpp4:
   case Bpp6:
     fdata.type= Data::UINT8; break;

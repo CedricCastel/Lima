@@ -807,6 +807,7 @@ void CtVideo::getSupportedVideoMode(std::list<VideoMode> &modeList) const
 	  modeList.push_back(Y32); break;
 
 	case Bpp1:
+	case Bpp2:
 	case Bpp4:
 	case Bpp6:
 	  modeList.push_back(Y8); break;

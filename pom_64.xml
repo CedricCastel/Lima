@@ -9,7 +9,7 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>LimaCore-amd64-Linux-gcc-shared-${mode}</artifactId>
-    <version>1.7.7</version>
+    <version>1.7.8</version>
 
     <packaging>nar</packaging>
     <name>LimaCore</name>
@@ -68,7 +68,7 @@
                             <exclude>control/src/CtSaving_Tiff.cpp</exclude>
                             <exclude>control/src/CtSpsImage.cpp</exclude>
                             <!--<exclude>control/src/CtSaving_Hdf5.cpp</exclude>-->
-                            <!-- <exclude>control/src/CtSaving_Nxs.cpp</exclude> -->
+                            <!--<exclude>control/src/CtSaving_Nxs.cpp</exclude>-->
                             <exclude>camera/pilatus/doc/camera_sirius.def</exclude>                            
                         </excludes>
                         <defines>
@@ -125,29 +125,7 @@
                             <type>shared</type>
                         </library>
                     </libraries>
-                    <specificConfigurations>
-                        <specificConfiguration>
-                            <id>win32 platform</id>
-                            <activation>
-                                <os>Windows</os>
-                            </activation>
-                            <cpp>
-                                <excludes>
-                                    <exclude>common/src/RegExUtils.cpp</exclude>
-                                    <exclude>hardware/src/HwFileEventMgr.cpp</exclude>
-                                </excludes>
-                                <defines>
-                                    <define>LIMACORE_EXPORTS</define>
-                                    <define>WIN32</define>
-                                    <define>NDEBUG</define>
-                                    <define>_WINDOWS</define>
-                                    <define>_USRDLL</define>
-                                    <define>_WIN32_WINNT=0x0502</define> <!-- For Windows XP Support -->
-                                 
-                                </defines>
-                            </cpp>
-                        </specificConfiguration>
-                    </specificConfigurations>
+                    
                 </configuration>
             </plugin>
             <plugin>

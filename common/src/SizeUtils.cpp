@@ -153,6 +153,7 @@ int FrameDim::getImageTypeBpp(ImageType type)
 {
 	switch (type) {
 	case Bpp1: return 1;
+	case Bpp2: return 2;
 	case Bpp4: return 4;
 	case Bpp6: return 6;	
 	case Bpp8S:
@@ -196,6 +197,7 @@ int FrameDim::getImageTypeDepth(ImageType type)
 		return 4;
 
 	case Bpp1:
+	case Bpp2:
 	case Bpp4:
 	case Bpp6:
 		return 1;
