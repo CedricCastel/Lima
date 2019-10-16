@@ -9,7 +9,7 @@
 
     <groupId>fr.soleil.lib.Lima.Camera</groupId>
     <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-    <version>1.3.16</version>
+    <version>1.4.0</version>
 
     <packaging>nar</packaging>
     <name>LimaSimulator</name>
@@ -36,13 +36,13 @@
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
-                    <version>1.7.8</version>
+                    <version>1.7.9</version>
                 </dependency>
                 
-                <dependency>
+                <!-- <dependency>
                     <groupId>ncsa.uiuc.edu</groupId>
                     <artifactId>HDF5-${aol}-shared-release</artifactId>
-                </dependency>   
+                </dependency>    -->
                         
             </dependencies>
         </profile>
@@ -105,45 +105,7 @@
             </build>
                                 
         </profile>
-                
-        <profile>
-            <id>win_32</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>                
-                <property>
-                    <name>env</name>
-                    <value>win_32</value>
-                </property>
-            </activation>
-			
-            <dependencies>
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
-                    <version>1.7.8</version>
-                </dependency>
 
-				<dependency>
-					<groupId>fr.soleil.lib</groupId>
-                    <artifactId>NexusCPP-${aol}-static-${mode}</artifactId>
-                    <version>3.1.5-vc9</version>
-				</dependency>
-                        
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>YAT-${aol}-static-${mode}</artifactId>
-                    <version>1.13.4-vc9</version>
-                </dependency>
-                    
-                <dependency>
-                    <groupId>ncsa.uiuc.edu</groupId>
-                    <artifactId>HDF5-${aol}-shared-release</artifactId>
-                    <version>1.8.13-vc9</version>
-                </dependency>    
-                            
-            </dependencies>
-        </profile>
-        
         <profile>
             <id>win_32_vc12</id>
             <activation>
@@ -153,30 +115,15 @@
                     <value>win_32_vc12</value>
                 </property>
             </activation>
-			
+
             <dependencies>
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>LimaCore-${aol}-shared-${mode}</artifactId>
-                    <version>1.7.8</version>
-                </dependency>
-
-				<dependency>
-					<groupId>fr.soleil.lib</groupId>
-                    <artifactId>NexusCPP-${aol}-static-${mode}</artifactId>
-				</dependency>
-                        
-                <dependency>
-                    <groupId>fr.soleil.lib</groupId>
-                    <artifactId>YAT-${aol}-static-${mode}</artifactId>
-                </dependency>
-                    
-                <dependency>
-                    <groupId>ncsa.uiuc.edu</groupId>
-                    <artifactId>HDF5-${aol}-shared-release</artifactId>
-                </dependency>    
-                            
+                    <version>1.7.9</version>
+                </dependency>   
             </dependencies>
+
         </profile>
     </profiles>
     

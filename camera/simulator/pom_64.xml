@@ -9,7 +9,7 @@
 
     <groupId>fr.soleil.lib.Lima.Camera</groupId>
     <artifactId>LimaSimulator-amd64-Linux-gcc-shared-${mode}</artifactId>
-    <version>1.3.16</version>
+    <version>1.4.0</version>
 
     <packaging>nar</packaging>
     <name>LimaSimulator</name>
@@ -34,7 +34,7 @@
                 <dependency>
                     <groupId>fr.soleil.lib</groupId>
                     <artifactId>LimaCore-amd64-Linux-gcc-shared-${mode}</artifactId>
-                    <version>1.7.8</version>
+                    <version>1.7.9</version>
                 </dependency>                             
             </dependencies>
         </profile>
@@ -62,24 +62,6 @@
                             <type>shared</type>
                         </library>
                     </libraries>
-                    <specificConfigurations>
-                        <specificConfiguration>
-                            <id>win32 platform</id>
-                            <activation>
-                                <os>Windows</os>
-                            </activation>
-                            <cpp>
-                                <defines>
-                                    <define>LIBSIMULATOR_EXPORTS</define>
-                                    <define>WIN32</define>
-                                    <define>NDEBUG</define>
-                                    <define>_WINDOWS</define>
-                                    <define>_USRDLL</define>
-                                    <define>_WIN32_WINNT=0x0502</define> <!-- For Windows XP Support -->
-                                </defines>
-                            </cpp>
-                        </specificConfiguration>
-                    </specificConfigurations>
                 </configuration>
             </plugin>
             <plugin>
