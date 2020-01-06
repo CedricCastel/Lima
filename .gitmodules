@@ -37,9 +37,6 @@
 [submodule "camera/imxpad"]
 	path = camera/imxpad
 	url = git://github.com/soleil-ica/Lima-camera-imxpad
-[submodule "camera/aviex"]
-	path = camera/aviex
-	url = git://github.com/soleil-ica/Lima-camera-aviex.git
 [submodule "camera/hamamatsu"]
 	path = camera/hamamatsu
 	url = git://github.com/soleil-ica/Lima-camera-hamamatsu.git

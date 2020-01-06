@@ -190,7 +190,7 @@ if __name__ == "__main__":
   if "linux" in sys.platform:
     if "i686" in platform.machine():
         platform = "linux32"
-        camera_list = ["aviex", "basler", "eiger", "imxpad", "marccd","merlin", "pilatus","prosilica","simulator","ufxc", "xpad"]
+        camera_list = ["basler", "eiger", "imxpad", "marccd","merlin", "pilatus","prosilica","simulator","ufxc", "xpad"]
         maven_platform_options = " -Denv=linux_32"
         src_path = './target/nar/lib/i386-Linux-g++/shared/'
         device_src_path = './target/nar/bin/i386-Linux-g++/'
