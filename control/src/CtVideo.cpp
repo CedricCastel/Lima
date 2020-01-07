@@ -813,6 +813,7 @@ void CtVideo::getSupportedVideoMode(std::list<VideoMode> &modeList) const
 	  modeList.push_back(Y8); break;
 	case Bpp24:
 	case Bpp24S:
+    case Bpp28:
 	  modeList.push_back(Y32); break;
 
 	default:
