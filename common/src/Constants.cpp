@@ -61,6 +61,7 @@ const char* lima::convert_2_string(ImageType image_type)
 	case Bpp6:		name = "Bpp6";		break;
 	case Bpp24:		name = "Bpp24";		break;
 	case Bpp24S:		name = "Bpp24S";	break;
+    case Bpp28:		name = "Bpp28";	break;
 	}
 	return name;
 }
@@ -90,6 +91,7 @@ void lima::convert_from_string(const std::string& val,
   else if(buffer == "bpp6") 	image_type = Bpp6;
   else if(buffer == "bpp24") 	image_type = Bpp24;
   else if(buffer == "bpp24s") 	image_type = Bpp24S;
+  else if(buffer == "Bpp28") 	image_type = Bpp28;
   else
     {
       std::ostringstream msg;

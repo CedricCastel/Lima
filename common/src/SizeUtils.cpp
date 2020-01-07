@@ -167,7 +167,8 @@ int FrameDim::getImageTypeBpp(ImageType type)
 	case Bpp16S:
 	case Bpp16: return 16;
 	case Bpp24: 
-	case Bpp24S: return 24;	
+	case Bpp24S: return 24;
+	case Bpp28: return 28;
 	case Bpp32S:
 	case Bpp32F:
 	case Bpp32: return 32;
@@ -203,6 +204,7 @@ int FrameDim::getImageTypeDepth(ImageType type)
 		return 1;
 	case Bpp24:
 	case Bpp24S:
+    case Bpp28:
 		return 4;
 
 	default:    
