@@ -97,6 +97,7 @@ namespace lima
   void data2Image(Data &aData,VideoImage &anImage);
   void image2YUV(const unsigned char *srcPt,int width,int height,VideoMode mode,
 		 unsigned char *dst);
+  bool image2RGB(const unsigned char *srcPt,int width,int height,VideoMode mode, unsigned char *dst);
 
   inline std::ostream& operator<<(std::ostream &os,
 				  const VideoImage &anImage)
@@ -140,5 +141,15 @@ namespace lima
        << ">";
     return os;
   }
+  
+	//---------------------------
+	//- bayer function
+	//---------------------------
+	static void copyBayerPixelsToFilterBuffer(const unsigned char * in_bayer_buffer, const int in_width, const int in_height, const int in_filter_scanline, unsigned char * in_filter_buffer);
+	static void computeRBPixelsInFilterBuffer(unsigned char * in_out_filter_buffer, const int in_width, const int in_height, const int in_filter_scanline);
+	static void computeMissingPixelsInFilterBuffer(unsigned char * in_out_filter_buffer, const int in_width, const int in_height, const int in_filter_scanline);
+	static void copyFilterBufferToRgb24(const unsigned char * in_filter_buffer, const int in_width, const int in_height, const int in_filter_scanline, unsigned char * & out_rgb_buffer);
+	static void computeBlurInFilterBuffer(unsigned char * & in_out_filter_buffer, const int in_width, const int in_height, unsigned char * out_rgb_buffer);
+	static void convertBayerToRgb24(const unsigned char * in_bayer_buffer, const int in_width, const int in_height, unsigned char * & out_rgb_buffer);
 }
 #endif
