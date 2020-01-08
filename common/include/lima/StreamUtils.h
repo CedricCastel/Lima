@@ -33,6 +33,12 @@
 #if WIN32 && _MSC_VER >= 1900
 template class LIMACORE_API std::allocator<char>;
 #endif
+
+#if WIN32
+	#pragma warning(push)
+	#pragma warning(disable : 4251)
+#endif
+
 class LIMACORE_API NullStreamBuf : public std::stringbuf
 {
  protected:
@@ -44,10 +50,13 @@ class LIMACORE_API NullStreamBuf : public std::stringbuf
 	}
 };
 
+#if WIN32
+	#pragma warning(pop)
+#endif
 
 class LIMACORE_API CopyStreamBuf : public std::stringbuf
 {
- public:
+  public:
 	typedef std::vector<std::ostream *> StreamList;
 	
 	CopyStreamBuf(StreamList *slist, std::ostream *altstream = NULL)
