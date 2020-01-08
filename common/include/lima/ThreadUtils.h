@@ -94,7 +94,10 @@ class LIMACORE_API Cond
 
 	void acquire();
 	void release();
-	Mutex& mutex() {return m_mutex;}
+	Mutex& mutex() 
+	{ 
+		return m_mutex; 
+	}
 
 	bool wait(double timeout = -1.);
 	void signal();
