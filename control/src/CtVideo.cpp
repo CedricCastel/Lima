@@ -159,7 +159,11 @@ bool CtVideo::_InternalImageCBK::newImage(char * data,int width,int height,Video
       void *ptr = m_buffer.getFrameBufferPtr(image_counter);
       try
 	{
-	  lima::image2YUV((unsigned char*)data,width,height,mode,(unsigned char*)ptr);
+	  if(!lima::image2RGB((unsigned char*)data,width,height,mode,(unsigned char*)ptr))
+	  {
+	    lima::image2YUV((unsigned char*)data,width,height,mode,(unsigned char*)ptr);
+	  }
+	  
 	  HwFrameInfoType frame_info;
 	  frame_info.acq_frame_nb = image_counter;
 	  frame_info.frame_timestamp = now - m_start_time;
@@ -812,6 +816,9 @@ void CtVideo::getSupportedVideoMode(std::list<VideoMode> &modeList) const
 	case Bpp6:
 	  modeList.push_back(Y8); break;
 	case Bpp24:
+	  modeList.push_back(Y32);
+      modeList.push_back(RGB24);
+	  modeList.push_back(BAYER_BG8); break;
 	case Bpp24S:
 	  modeList.push_back(Y32); break;
 
