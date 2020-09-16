@@ -148,6 +148,7 @@ class LIMACORE_API CtImage {
 
 	void getMaxImageSize(Size& size) const;
 
+    void getInternalImageType(ImageType& type) const; // CCA - To get the current image type without the acquisition mode behaviour
 	void getImageType(ImageType& type) const;
 	void setImageType(ImageType type);
 

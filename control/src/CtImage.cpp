@@ -611,6 +611,14 @@ void CtImage::_setMaxImage(const Size &size, ImageType type)
 	m_hw->setMaxSize(m_max_size);
 }
 
+// CCA - To get the current image type without the acquisition mode behaviour
+void CtImage::getInternalImageType(ImageType& type) const
+{
+	DEB_MEMBER_FUNCT();
+	type= m_img_type;
+    DEB_RETURN() << DEB_VAR1(type);
+}
+
 void CtImage::getImageType(ImageType& type) const
 {
 	DEB_MEMBER_FUNCT();
